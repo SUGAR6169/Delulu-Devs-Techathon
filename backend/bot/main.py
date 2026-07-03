@@ -19,7 +19,7 @@ intents.message_content = True
 
 class OfficeBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="!", intents=intents)
+        super().__init__(command_prefix="!", intents=intents, help_command=None)
         self.session = None
 
     async def setup_hook(self):
@@ -45,6 +45,12 @@ class OfficeBot(commands.Bot):
             
             if CHANNEL_ID and CHANNEL_ID != "your_channel_id_here":
                 channel = self.get_channel(int(CHANNEL_ID))
+                if not channel:
+                    try:
+                        channel = await self.fetch_channel(int(CHANNEL_ID))
+                    except Exception as fe:
+                        print(f"Failed to fetch channel {CHANNEL_ID}: {fe}")
+                
                 if channel:
                     alert_text = f"🚨 **ALERT!** 🚨\n{message}"
                     await channel.send(alert_text)
@@ -60,6 +66,12 @@ bot = OfficeBot()
 @bot.event
 async def on_ready():
     print(f"Logged in as {bot.user} (ID: {bot.user.id})")
+
+@bot.event
+async def on_message(message):
+    # Log incoming messages to help diagnose message content intent issues
+    print(f"[DEBUG] Message received from {message.author}: '{message.content}' (has_content: {bool(message.content)})")
+    await bot.process_commands(message)
 
 async def fetch_json(url: str):
     async with bot.session.get(url) as response:
@@ -122,6 +134,37 @@ async def usage_command(ctx):
             await ctx.send(human_text)
         except Exception as e:
             await ctx.send(f"Error fetching data from backend: {e}")
+
+@bot.command(name="alerts", aliases=["alert"])
+async def alerts_command(ctx):
+    async with ctx.typing():
+        try:
+            data = await fetch_json(f"{API_BASE_URL}/alerts")
+            human_text = generate_humanized_response("What are the recent alerts and anomalies in the office?", data)
+            await ctx.send(human_text)
+        except Exception as e:
+            await ctx.send(f"Error fetching data from backend: {e}")
+
+@bot.command(name="help")
+async def help_command(ctx):
+    embed = discord.Embed(
+        title="🤖 Delulu Devs Office Assistant Help",
+        description="Hello! I am your AI-powered office assistant. I monitor the office's electrical devices, power usage, and active alerts in real-time.",
+        color=0x6366f1
+    )
+    embed.add_field(
+        name="Commands",
+        value=(
+            "• `!status` - Check the current live status of all devices across the office.\n"
+            "• `!room <name>` - Check device statuses for a specific room (e.g., `!room drawing`, `!room work1`).\n"
+            "• `!usage` - Get total live power consumption summary and estimated daily usage.\n"
+            "• `!alerts` (or `!alert`) - Fetch the history of the most recent anomalies and alerts.\n"
+            "• `!help` - Display this command menu."
+        ),
+        inline=False
+    )
+    embed.set_footer(text="Developed for the Delulu Devs Techathon Dashboard.")
+    await ctx.send(embed=embed)
 
 if __name__ == "__main__":
     if not TOKEN or TOKEN == "your_discord_bot_token_here":

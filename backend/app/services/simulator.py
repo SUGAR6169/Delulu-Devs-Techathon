@@ -81,16 +81,38 @@ async def simulate_events():
             db.close()
 
 async def trigger_alert(db: Session, alert_type: str, message: str):
-    # Check if a recent alert with same message exists to avoid spamming
-    recent = db.query(Alert).filter(Alert.message == message).order_by(Alert.timestamp.desc()).first()
-    if recent and (datetime.utcnow() - recent.timestamp).total_seconds() < 60:
-        return # Skip if we already alerted in the last minute
+    # Check if an alert with same message exists for deduplication
+    existing_alert = db.query(Alert).filter(Alert.message == message).first()
+    
+    if existing_alert:
+        # Avoid spamming websocket/discord if updated too recently (e.g., last 5 seconds)
+        time_since_last = (datetime.utcnow() - existing_alert.timestamp).total_seconds()
+        existing_alert.timestamp = datetime.utcnow()
+        existing_alert.count += 1
+        db.commit()
+        
+        alert_data = {
+            "id": existing_alert.id,
+            "type": existing_alert.type,
+            "message": existing_alert.message,
+            "timestamp": existing_alert.timestamp.isoformat(),
+            "count": existing_alert.count
+        }
+        
+        # Only broadcast if it's been a while, but always update DB state
+        if time_since_last > 5:
+            await manager.broadcast({
+                "event": "alert_updated",
+                "data": alert_data
+            })
+        return
 
     new_alert = Alert(
         id=str(uuid.uuid4()),
         type=alert_type,
         message=message,
-        timestamp=datetime.utcnow()
+        timestamp=datetime.utcnow(),
+        count=1
     )
     db.add(new_alert)
     db.commit()
@@ -99,7 +121,8 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
         "id": new_alert.id,
         "type": new_alert.type,
         "message": new_alert.message,
-        "timestamp": new_alert.timestamp.isoformat()
+        "timestamp": new_alert.timestamp.isoformat(),
+        "count": new_alert.count
     }
 
     # Broadcast to WS
