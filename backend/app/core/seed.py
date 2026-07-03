@@ -16,8 +16,8 @@ def seed_db(db: Session):
     
     for room in rooms:
         prefix = room_prefixes[room]
-        for i in range(1, 4):
-            # 3 fans
+        # 2 fans
+        for i in range(1, 3):
             db.add(Device(
                 id=f"{prefix}_fan_{i}",
                 name=f"Fan {i}",
@@ -26,7 +26,8 @@ def seed_db(db: Session):
                 status=False,
                 power_draw_watts=0.0,
             ))
-            # 3 lights
+        # 3 lights
+        for i in range(1, 4):
             db.add(Device(
                 id=f"{prefix}_light_{i}",
                 name=f"Light {i}",
