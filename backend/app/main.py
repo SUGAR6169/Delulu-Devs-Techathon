@@ -6,7 +6,7 @@ import asyncio
 
 from app.core.database import engine, Base, get_db
 from app.core.seed import seed_db
-from app.api import devices, alerts, power, websockets
+from app.api import devices, alerts, power, websockets, simulation
 from app.services.simulator import simulate_events
 
 @asynccontextmanager
@@ -38,6 +38,7 @@ app.add_middleware(
 app.include_router(devices.router, prefix="/api")
 app.include_router(power.router, prefix="/api")
 app.include_router(alerts.router, prefix="/api")
+app.include_router(simulation.router, prefix="/api")
 app.include_router(websockets.router)
 
 @app.get("/")

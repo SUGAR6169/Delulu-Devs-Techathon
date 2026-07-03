@@ -7,3 +7,6 @@ httpx
 discord.py
 google-genai
 python-dotenv
+pytest
+pytest-asyncio
+httpx

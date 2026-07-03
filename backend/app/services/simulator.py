@@ -1,7 +1,7 @@
 import asyncio
 import random
 import uuid
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import httpx
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
@@ -13,30 +13,18 @@ from app.services.ws_manager import manager
 DISCORD_BOT_WEBHOOK_URL = "http://localhost:8001/webhook/alert"
 
 async def simulate_events():
+    """Background task to integrate energy over time and check alerts."""
     while True:
-        await asyncio.sleep(5)  # Run every 5 seconds for the hackathon demo
+        await asyncio.sleep(5)
         
         db: Session = SessionLocal()
         try:
-            # 1. Randomly toggle 1-2 devices
             devices = db.query(Device).all()
             if not devices:
                 continue
 
-            num_to_toggle = random.randint(1, 2)
-            to_toggle = random.sample(devices, num_to_toggle)
-
-            for d in to_toggle:
-                d.status = not d.status
-                d.last_changed = datetime.utcnow()
-                if d.status:
-                    d.power_draw_watts = 60.0 if d.type == 'fan' else 15.0
-                else:
-                    d.power_draw_watts = 0.0
-
-            # 2. Update Daily Consumption
-            # For 5 seconds at current total watts
-            total_watts = sum(d.power_draw_watts for d in db.query(Device).all())
+            # Update Daily Consumption for 5 seconds at current total watts
+            total_watts = sum(d.power_draw_watts for d in devices)
             hours_elapsed = 5.0 / 3600.0
             kwh_added = (total_watts * hours_elapsed) / 1000.0
 
@@ -49,19 +37,7 @@ async def simulate_events():
             consumption.total_kwh += kwh_added
             db.commit()
 
-            # 3. Broadcast to WebSocket
-            for d in to_toggle:
-                await manager.broadcast({
-                    "event": "state_update",
-                    "data": {
-                        "id": d.id,
-                        "status": d.status,
-                        "power_draw_watts": d.power_draw_watts,
-                        "last_changed": d.last_changed.isoformat()
-                    }
-                })
-
-            # 4. Anomaly Detection
+            # Anomaly Detection
             now = datetime.utcnow()
             for d in devices:
                 if d.status:
@@ -70,8 +46,8 @@ async def simulate_events():
                         alert_msg = f"{d.room} has devices ON after hours! ({d.name})"
                         await trigger_alert(db, "after_hours", alert_msg)
                         
-                    # Condition 2: Left on for too long (> 2 hours) -> Demo: > 30 seconds
-                    elif (now - d.last_changed).total_seconds() > 30: # 30s for demo purposes
+                    # Condition 2: Left on for too long (> 2 hours). For demo: > 30s
+                    elif (now - d.last_changed).total_seconds() > 30:
                         alert_msg = f"{d.room} - {d.name} has been ON for too long!"
                         await trigger_alert(db, "excessive_usage", alert_msg)
 
@@ -80,12 +56,77 @@ async def simulate_events():
         finally:
             db.close()
 
+
+async def apply_scenario(db: Session, scenario_id: str):
+    """Applies specific state configurations based on scenario ID."""
+    devices = db.query(Device).all()
+    now = datetime.utcnow()
+    
+    updated_devices = []
+
+    if scenario_id == "normal_day":
+        # Random daytime setup
+        for d in devices:
+            d.status = random.choice([True, False])
+            d.power_draw_watts = (60.0 if d.type == 'fan' else 15.0) if d.status else 0.0
+            d.last_changed = now
+            updated_devices.append(d)
+            
+    elif scenario_id == "late_night_usage":
+        # Turn off everything except Work Room 2
+        for d in devices:
+            if d.room == "Work Room 2":
+                d.status = True
+                d.power_draw_watts = 60.0 if d.type == 'fan' else 15.0
+            else:
+                d.status = False
+                d.power_draw_watts = 0.0
+            d.last_changed = now
+            updated_devices.append(d)
+            
+    elif scenario_id == "prolonged_operation":
+        # Turn on Work Room 1 devices and fast-forward timestamp
+        for d in devices:
+            if d.room == "Work Room 1":
+                d.status = True
+                d.power_draw_watts = 60.0 if d.type == 'fan' else 15.0
+                # Fast forward to trigger 2-hour anomaly (demo: > 30s)
+                d.last_changed = now - timedelta(seconds=45) 
+            else:
+                d.status = False
+                d.power_draw_watts = 0.0
+                d.last_changed = now
+            updated_devices.append(d)
+            
+    elif scenario_id == "shutdown":
+        # Turn off everything and resolve alerts
+        for d in devices:
+            d.status = False
+            d.power_draw_watts = 0.0
+            d.last_changed = now
+            updated_devices.append(d)
+        
+        # Clear alerts
+        db.query(Alert).delete()
+
+    db.commit()
+
+    # Broadcast changes to WS
+    for d in updated_devices:
+        await manager.broadcast({
+            "event": "state_update",
+            "data": {
+                "id": d.id,
+                "status": d.status,
+                "power_draw_watts": d.power_draw_watts,
+                "last_changed": d.last_changed.isoformat()
+            }
+        })
+
 async def trigger_alert(db: Session, alert_type: str, message: str):
-    # Check if an alert with same message exists for deduplication
     existing_alert = db.query(Alert).filter(Alert.message == message).first()
     
     if existing_alert:
-        # Avoid spamming websocket/discord if updated too recently (e.g., last 5 seconds)
         time_since_last = (datetime.utcnow() - existing_alert.timestamp).total_seconds()
         existing_alert.timestamp = datetime.utcnow()
         existing_alert.count += 1
@@ -99,7 +140,6 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
             "count": existing_alert.count
         }
         
-        # Only broadcast if it's been a while, but always update DB state
         if time_since_last > 5:
             await manager.broadcast({
                 "event": "alert_updated",
@@ -125,15 +165,13 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
         "count": new_alert.count
     }
 
-    # Broadcast to WS
     await manager.broadcast({
         "event": "alert_triggered",
         "data": alert_data
     })
 
-    # Proactively POST to Discord Bot Webhook
     async with httpx.AsyncClient() as client:
         try:
             await client.post(DISCORD_BOT_WEBHOOK_URL, json=alert_data, timeout=2.0)
-        except Exception as e:
-            pass # Suppress logging if bot is not running yet
+        except Exception:
+            pass
