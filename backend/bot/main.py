@@ -81,15 +81,28 @@ async def room_command(ctx, *, room_name: str):
     room_map = {
         "drawing room": "Drawing Room",
         "drawing": "Drawing Room",
+        "drawingroom": "Drawing Room",
         "work room 1": "Work Room 1",
         "work1": "Work Room 1",
+        "workroom1": "Work Room 1",
         "work room 2": "Work Room 2",
         "work2": "Work Room 2",
+        "workroom2": "Work Room 2",
     }
     
     db_room = room_map.get(room_name.lower().strip())
     if not db_room:
-        await ctx.send(f"I don't recognize the room '{room_name}'. Try 'drawing', 'work1', or 'work2'.")
+        async with ctx.typing():
+            error_data = {
+                "error": "Invalid room specified",
+                "provided": room_name,
+                "valid_choices": ["Drawing Room", "Work Room 1", "Work Room 2"]
+            }
+            human_text = generate_humanized_response(
+                "The user asked for a room that doesn't exist. Let them know in a friendly way and list the valid options they can use instead.", 
+                error_data
+            )
+            await ctx.send(human_text)
         return
 
     async with ctx.typing():
