@@ -4,3 +4,6 @@ sqlalchemy
 pydantic
 websockets
 httpx
+discord.py
+google-genai
+python-dotenv
