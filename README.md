@@ -119,7 +119,7 @@ python main.py
 
 The WebSocket server at `ws://localhost:8000/ws/devices` broadcasts state updates (`state_update`), time ticks (`time_tick`), and alerts (`alert_triggered`, `alert_updated`).
 
-## Discord Copilot Setup
+## Discord Bot Setup
 
 1. Create an application and bot in the Discord Developer Portal.
 2. Enable the **Message Content intent**.
