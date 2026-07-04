@@ -14,6 +14,12 @@ async def lifespan(app: FastAPI):
     # Startup
     Base.metadata.create_all(bind=engine)
     db = next(get_db())
+    
+    # Clear alerts on fresh startup so the dashboard begins empty
+    from app.models.alert import Alert
+    db.query(Alert).delete()
+    db.commit()
+    
     seed_db(db)
     
     # Start the simulator background task

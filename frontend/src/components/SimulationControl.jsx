@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Moon, Clock } from 'lucide-react';
+import { Play, Clock, Flame } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
@@ -44,8 +44,8 @@ export default function SimulationControl() {
           onClick={() => triggerScenario('late_night_usage')}
           className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
         >
-          <div className="p-1.5 bg-purple-500/10 rounded-md text-purple-400 group-hover:scale-110 transition-transform">
-            <Moon size={14} />
+          <div className="p-1.5 bg-amber-500/10 rounded-md text-amber-500 group-hover:scale-110 transition-transform">
+            <Clock size={14} />
           </div>
           <div>
             <div className="text-white text-xs font-medium leading-tight">After-Hours Leak</div>
@@ -57,8 +57,8 @@ export default function SimulationControl() {
           onClick={() => triggerScenario('prolonged_operation')}
           className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
         >
-          <div className="p-1.5 bg-amber-500/10 rounded-md text-amber-400 group-hover:scale-110 transition-transform">
-            <Clock size={14} />
+          <div className="p-1.5 bg-red-500/10 rounded-md text-red-500 group-hover:scale-110 transition-transform">
+            <Flame size={14} />
           </div>
           <div>
             <div className="text-white text-xs font-medium leading-tight">2-Hour Overtime</div>

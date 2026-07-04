@@ -67,7 +67,14 @@ function App() {
         return [latest.data, ...prev].slice(0, 20);
       });
     } else if (latest.event === 'alert_updated') {
-      setAlerts(prev => prev.map(a => a.id === latest.data.id ? latest.data : a).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+      setAlerts(prev => {
+        const exists = prev.find(a => a.id === latest.data.id);
+        if (exists) {
+          return prev.map(a => a.id === latest.data.id ? latest.data : a).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        } else {
+          return [latest.data, ...prev].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 20);
+        }
+      });
     }
   }, [wsMessages]);
 

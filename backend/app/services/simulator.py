@@ -56,25 +56,36 @@ async def simulate_events():
             db.commit()
 
             # Anomaly Detection based on simulated time
+            # Group devices by room to check room-level constraints
+            rooms = {}
             for d in devices:
-                if d.status:
-                    # Condition 1: After hours (5 PM to 9 AM)
-                    if SIMULATED_TIME.hour >= 17 or SIMULATED_TIME.hour < 9:
-                        alert_msg = f"{d.room} has devices ON after hours! ({d.name})"
-                        await trigger_alert(db, "after_hours", alert_msg)
+                rooms.setdefault(d.room, []).append(d)
+                
+            for room, room_devices in rooms.items():
+                all_devices_on_for_2_hours = True
+                has_devices = len(room_devices) > 0
+                
+                for d in room_devices:
+                    if d.status:
+                        # Condition 1: After hours (5 PM to 9 AM)
+                        if SIMULATED_TIME.hour >= 17 or SIMULATED_TIME.hour < 9:
+                            alert_msg = f"{d.room} has devices ON after hours! ({d.name})"
+                            await trigger_alert(db, "after_hours", alert_msg)
+                            
+                        # For Condition 2: check if this device has been on for 2+ hours
+                        last_changed = d.last_changed
+                        if last_changed.tzinfo is None:
+                            last_changed = last_changed.replace(tzinfo=DHAKA_TZ)
                         
-                    # Condition 2: Left on for too long (> 2 hours) -> 7200 seconds
-                    # Because last_changed was saved without tzinfo by default in db, we must ensure timezone awareness
-                    # Actually, if db returns naive datetime, let's treat it as UTC or convert appropriately.
-                    # Wait, our database is SQLite, which returns naive datetimes. 
-                    # Let's ensure last_changed is timezone aware.
-                    last_changed = d.last_changed
-                    if last_changed.tzinfo is None:
-                        last_changed = last_changed.replace(tzinfo=DHAKA_TZ)
-                    
-                    if (SIMULATED_TIME - last_changed).total_seconds() > 7200:
-                        alert_msg = f"{d.room} - {d.name} has been ON for too long!"
-                        await trigger_alert(db, "excessive_usage", alert_msg)
+                        if (SIMULATED_TIME - last_changed).total_seconds() <= 7200:
+                            all_devices_on_for_2_hours = False
+                    else:
+                        all_devices_on_for_2_hours = False
+                
+                # Condition 2: ALL devices in the room have been ON for 2+ hours
+                if has_devices and all_devices_on_for_2_hours:
+                    alert_msg = f"The fans and lights in {room} have been ON for way too long!"
+                    await trigger_alert(db, "excessive_usage", alert_msg)
 
         except Exception as e:
             print(f"Simulator error: {e}")
