@@ -11,6 +11,7 @@ class AlertCreate(AlertBase):
 class Alert(AlertBase):
     id: str
     timestamp: datetime
+    count: int = 1
 
     class Config:
         from_attributes = True

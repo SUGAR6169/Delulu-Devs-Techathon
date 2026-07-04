@@ -8,42 +8,45 @@ export default function PowerMeter({ summary }) {
   );
 
   return (
-    <div className="glass-panel space-y-4">
-      <h2 className="text-xl font-bold flex items-center gap-2">
-        <Activity className="text-primary" /> Live Power Consumption
+    <div className="glass-panel space-y-6">
+      <h2 className="text-[10px] uppercase tracking-widest text-indigo-300/70 flex items-center gap-2">
+        <Activity size={14} className="text-indigo-400" /> Power Consumption
       </h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-surface/50 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+        <div className="bg-[#13151f] p-6 rounded-2xl border border-white/5 flex items-center justify-between shadow-inner">
           <div>
-            <p className="text-sm text-slate-400">Total Live Wattage</p>
-            <p className="text-3xl font-black text-warning flex items-baseline gap-1">
-              {summary.total_watts.toFixed(1)} <span className="text-sm font-normal">W</span>
+            <p className="text-xs uppercase tracking-widest text-indigo-300/70 mb-2">Total Live Wattage</p>
+            <p className="font-mono text-white text-4xl font-semibold flex items-baseline gap-1">
+              {summary.total_watts.toFixed(1)} <span className="text-base font-medium text-slate-400">W</span>
             </p>
           </div>
-          <Zap size={40} className="text-warning opacity-50" />
+          <Zap size={36} className="text-warning opacity-50" />
         </div>
 
-        <div className="bg-surface/50 p-4 rounded-xl border border-white/5 flex items-center justify-between">
+        <div className="bg-[#13151f] p-6 rounded-2xl border border-white/5 flex items-center justify-between shadow-inner">
           <div>
-            <p className="text-sm text-slate-400">Today's Estimated Usage</p>
-            <p className="text-3xl font-black text-primary flex items-baseline gap-1">
-              {summary.estimated_kwh.toFixed(3)} <span className="text-sm font-normal">kWh</span>
+            <p className="text-xs uppercase tracking-widest text-indigo-300/70 mb-2">Today's Estimated Usage</p>
+            <p className="font-mono text-white text-4xl font-semibold flex items-baseline gap-1">
+              {summary.estimated_kwh.toFixed(3)} <span className="text-base font-medium text-slate-400">kWh</span>
             </p>
           </div>
-          <Activity size={40} className="text-primary opacity-50" />
+          <Activity size={36} className="text-primary opacity-50" />
         </div>
       </div>
 
-      <div className="pt-4 border-t border-white/10">
-        <h3 className="text-sm font-semibold mb-3 text-slate-300">Room Breakdown (Live)</h3>
-        <div className="space-y-2">
-          {Object.entries(summary.rooms_watts || {}).map(([room, watts]) => (
-            <div key={room} className="flex justify-between items-center text-sm">
-              <span className="text-slate-400">{room}</span>
-              <span className="font-mono">{watts.toFixed(1)} W</span>
-            </div>
-          ))}
+      <div className="pt-4 border-t border-white/5">
+        <h3 className="text-[10px] uppercase tracking-widest text-indigo-300/70 mb-3">Room Breakdown (Live)</h3>
+        <div className="grid grid-cols-3 gap-3">
+          {Object.entries(summary.rooms_watts || {}).map(([room, watts]) => {
+            const roomPrefix = room.replace(' Room', '');
+            return (
+              <div key={room} className="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center text-center">
+                <span className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">{roomPrefix}</span>
+                <span className="font-mono text-white text-xl font-bold">{watts.toFixed(1)} W</span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
