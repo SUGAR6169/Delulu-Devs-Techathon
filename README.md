@@ -156,4 +156,15 @@ The [`hardware/wokwi`](hardware/wokwi) directory contains:
 
 ## Team
 
-Built by **Team Delulu Devs**.
+Built by **Team Delulu Devs**. 
+
+## Team
+
+**Team CLI** — Techathon Nationals & Rover Summit Hackathon '26'
+
+| Name | GitHub | Email |
+|------|--------|-------|
+| Muntakim Fuad Mahi | @sugar6169 | muntakimfm@gmail.com |
+| Anha Khan | @Anha-Khan | anhakhan0111@gmail.com |
+| Abrar Faiyaz Arian | @abrar-arian | member3@example.com |
+| Ahad Kaiser Tamim | @amoxicillin23 | ahadkaisertamim23.akt@gmail.com |
