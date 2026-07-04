@@ -8,9 +8,6 @@ PowerView gives an office one synchronized view of every light, fan, and energy 
 
 [Wokwi Hardware Schematic](https://wokwi.com/projects/468613327019371521)
 
-[![3-Minute YouTube Video Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
-*Placeholder: Click to watch the 3-Minute YouTube Video Demo*
-
 ## Problem understanding
 
 Employees sometimes leave lights and fans running after work, wasting energy and inflating operational costs. The office needs:
@@ -111,7 +108,7 @@ python main.py
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `GET` | `/api/devices` | All 18 current device states |
+| `GET` | `/api/devices` | All 15 current device states |
 | `GET` | `/api/power/summary` | Office and room power/energy totals |
 | `GET` | `/api/alerts` | Current active alerts |
 | `POST` | `/api/devices/:deviceId/toggle` | Simulate one physical state change |
@@ -119,7 +116,7 @@ python main.py
 
 The WebSocket server at `ws://localhost:8000/ws/devices` broadcasts state updates (`state_update`), time ticks (`time_tick`), and alerts (`alert_triggered`, `alert_updated`).
 
-## Discord Copilot Setup
+## Discord Bot Setup
 
 1. Create an application and bot in the Discord Developer Portal.
 2. Enable the **Message Content intent**.
@@ -156,4 +153,13 @@ The [`hardware/wokwi`](hardware/wokwi) directory contains:
 
 ## Team
 
-Built by **Team Delulu Devs**.
+Built by **Team Delulu Devs**. 
+
+**Team CLI** — Techathon Nationals & Rover Summit Hackathon '26'
+
+| Name | GitHub | Email |
+|------|--------|-------|
+| Muntakim Fuad Mahi | @sugar6169 | muntakimfm@gmail.com |
+| Anha Khan | @Anha-Khan | anhakhan0111@gmail.com |
+| Abrar Faiyaz Arian | @abrar-arian | abrarfaiyazarian@gmail.com |
+| Ahad Kaiser Tamim | @amoxicillin23 | ahadkaisertamim23.akt@gmail.com |
