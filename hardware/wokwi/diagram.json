@@ -1,88 +1,177 @@
 {
   "version": 1,
-  "author": "Delulu-Devs",
+  "author": "Team Delulu Devs",
   "editor": "wokwi",
   "parts": [
-    { "id": "esp", "type": "wokwi-esp32-devkit-v1", "left": 10, "top": 70, "attrs": {} },
-
-    { "id": "swFan1", "type": "wokwi-slide-switch", "left": -210, "top": -90, "attrs": { "label": "Fan 1 state", "value": "0" } },
-    { "id": "swFan2", "type": "wokwi-slide-switch", "left": -100, "top": -90, "attrs": { "label": "Fan 2 state", "value": "0" } },
-    { "id": "swLight1", "type": "wokwi-slide-switch", "left": 10, "top": -90, "attrs": { "label": "Light 1 state", "value": "0" } },
-    { "id": "swLight2", "type": "wokwi-slide-switch", "left": 120, "top": -90, "attrs": { "label": "Light 2 state", "value": "0" } },
-    { "id": "swLight3", "type": "wokwi-slide-switch", "left": 230, "top": -90, "attrs": { "label": "Light 3 state", "value": "0" } },
-
-    { "id": "relayFan1", "type": "wokwi-relay-module", "left": 330, "top": 0, "attrs": { "transistor": "pnp" } },
-    { "id": "relayFan2", "type": "wokwi-relay-module", "left": 330, "top": 95, "attrs": { "transistor": "pnp" } },
-    { "id": "relayLight1", "type": "wokwi-relay-module", "left": 330, "top": 190, "attrs": { "transistor": "pnp" } },
-    { "id": "relayLight2", "type": "wokwi-relay-module", "left": 330, "top": 285, "attrs": { "transistor": "pnp" } },
-    { "id": "relayLight3", "type": "wokwi-relay-module", "left": 330, "top": 380, "attrs": { "transistor": "pnp" } },
-
-    { "id": "fan1Load", "type": "wokwi-led", "left": 590, "top": 15, "attrs": { "color": "blue", "label": "Fan 1 relay output" } },
-    { "id": "fan2Load", "type": "wokwi-led", "left": 590, "top": 110, "attrs": { "color": "blue", "label": "Fan 2 relay output" } },
-    { "id": "light1Load", "type": "wokwi-led", "left": 590, "top": 205, "attrs": { "color": "white", "lightColor": "#ffd77a", "label": "Light 1" } },
-    { "id": "light2Load", "type": "wokwi-led", "left": 590, "top": 300, "attrs": { "color": "white", "lightColor": "#ffd77a", "label": "Light 2" } },
-    { "id": "light3Load", "type": "wokwi-led", "left": 590, "top": 395, "attrs": { "color": "white", "lightColor": "#ffd77a", "label": "Light 3" } },
-
-    { "id": "resFan1", "type": "wokwi-resistor", "left": 510, "top": 20, "rotate": 90, "attrs": { "value": "220" } },
-    { "id": "resFan2", "type": "wokwi-resistor", "left": 510, "top": 115, "rotate": 90, "attrs": { "value": "220" } },
-    { "id": "resLight1", "type": "wokwi-resistor", "left": 510, "top": 210, "rotate": 90, "attrs": { "value": "220" } },
-    { "id": "resLight2", "type": "wokwi-resistor", "left": 510, "top": 305, "rotate": 90, "attrs": { "value": "220" } },
-    { "id": "resLight3", "type": "wokwi-resistor", "left": 510, "top": 400, "rotate": 90, "attrs": { "value": "220" } }
+    { "type": "wokwi-arduino-uno", "id": "uno", "top": 190, "left": 120, "attrs": {} },
+    {
+      "type": "wokwi-text",
+      "id": "note_title",
+      "top": -120,
+      "left": -120,
+      "attrs": { "text": "■ SMART OFFICE SIMULATION: REPRESENTATIVE SINGLE ROOM" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "note_desc",
+      "top": -86.4,
+      "left": -115.2,
+      "attrs": {
+        "text": "NOTE: LEDs are used here as safe low-voltage equivalents to represent real high-voltage office fans and lights."
+      }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "lbl_sch",
+      "top": -19.2,
+      "left": 480,
+      "attrs": {
+        "text": "PIN MAPPING GRAPHIC:\n------------------\n■ OUTPUT LOADS:\nD2 ➔ Fan 1 (Blue LED)\nD3 ➔ Fan 2 (Blue LED)\nD4 ➔ Light 1 (Yellow LED)\nD5 ➔ Light 2 (Yellow LED)\nD6 ➔ Light 3 (Yellow LED)\n\n■ INPUT SWITCHES:\nD7 ➔ Switch Fan 1\nD8 ➔ Switch Fan 2\nD9 ➔ Switch Light 1\nD10 ➔ Switch Light 2\nD11 ➔ Switch Light 3"
+      }
+    },
+    { "type": "wokwi-led", "id": "fan1", "top": 20, "left": -120, "attrs": { "color": "blue" } },
+    {
+      "type": "wokwi-text",
+      "id": "txt_f1",
+      "top": 0,
+      "left": -153.6,
+      "attrs": { "text": "Fan 1 (D2)" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_f1",
+      "top": 90,
+      "left": -130,
+      "attrs": { "value": "220" }
+    },
+    { "type": "wokwi-led", "id": "fan2", "top": 20, "left": -40, "attrs": { "color": "blue" } },
+    {
+      "type": "wokwi-text",
+      "id": "txt_f2",
+      "top": 0,
+      "left": -67.2,
+      "attrs": { "text": "Fan 2 (D3)" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_f2",
+      "top": 90,
+      "left": -50,
+      "attrs": { "value": "220" }
+    },
+    { "type": "wokwi-led", "id": "light1", "top": 20, "left": 40, "attrs": { "color": "yellow" } },
+    {
+      "type": "wokwi-text",
+      "id": "txt_l1",
+      "top": 0,
+      "left": 19.2,
+      "attrs": { "text": "Light 1 (D4)" }
+    },
+    { "type": "wokwi-resistor", "id": "r_l1", "top": 90, "left": 30, "attrs": { "value": "220" } },
+    {
+      "type": "wokwi-led",
+      "id": "light2",
+      "top": 20,
+      "left": 120,
+      "attrs": { "color": "yellow" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "txt_l2",
+      "top": 0,
+      "left": 115.2,
+      "attrs": { "text": "Light 2 (D5)" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_l2",
+      "top": 90,
+      "left": 110,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "light3",
+      "top": 20,
+      "left": 200,
+      "attrs": { "color": "yellow" }
+    },
+    {
+      "type": "wokwi-text",
+      "id": "txt_l3",
+      "top": 0,
+      "left": 211.2,
+      "attrs": { "text": "Light 3 (D6)" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_l3",
+      "top": 90,
+      "left": 190,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_f1",
+      "top": 460,
+      "left": -130,
+      "attrs": { "color": "green", "label": "SW Fan 1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_f2",
+      "top": 460,
+      "left": -50,
+      "attrs": { "color": "green", "label": "SW Fan 2" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_l1",
+      "top": 457.4,
+      "left": 28.8,
+      "attrs": { "color": "red", "label": "SW Light 1" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_l2",
+      "top": 457.4,
+      "left": 105.6,
+      "attrs": { "color": "red", "label": "SW Light 2" }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn_l3",
+      "top": 460,
+      "left": 190,
+      "attrs": { "color": "red", "label": "SW Light 3" }
+    }
   ],
   "connections": [
-    ["swFan1:2", "esp:21", "green", []],
-    ["swFan2:2", "esp:22", "green", []],
-    ["swLight1:2", "esp:23", "green", []],
-    ["swLight2:2", "esp:18", "green", []],
-    ["swLight3:2", "esp:19", "green", []],
-    ["esp:3V3", "swFan1:1", "red", []],
-    ["esp:3V3", "swFan2:1", "red", []],
-    ["esp:3V3", "swLight1:1", "red", []],
-    ["esp:3V3", "swLight2:1", "red", []],
-    ["esp:3V3", "swLight3:1", "red", []],
-    ["esp:GND.1", "swFan1:3", "black", []],
-    ["esp:GND.1", "swFan2:3", "black", []],
-    ["esp:GND.1", "swLight1:3", "black", []],
-    ["esp:GND.1", "swLight2:3", "black", []],
-    ["esp:GND.1", "swLight3:3", "black", []],
-
-    ["esp:25", "relayFan1:IN", "orange", []],
-    ["esp:26", "relayFan2:IN", "orange", []],
-    ["esp:27", "relayLight1:IN", "orange", []],
-    ["esp:32", "relayLight2:IN", "orange", []],
-    ["esp:33", "relayLight3:IN", "orange", []],
-    ["esp:VIN", "relayFan1:VCC", "red", []],
-    ["esp:VIN", "relayFan2:VCC", "red", []],
-    ["esp:VIN", "relayLight1:VCC", "red", []],
-    ["esp:VIN", "relayLight2:VCC", "red", []],
-    ["esp:VIN", "relayLight3:VCC", "red", []],
-    ["esp:GND.2", "relayFan1:GND", "black", []],
-    ["esp:GND.2", "relayFan2:GND", "black", []],
-    ["esp:GND.2", "relayLight1:GND", "black", []],
-    ["esp:GND.2", "relayLight2:GND", "black", []],
-    ["esp:GND.2", "relayLight3:GND", "black", []],
-
-    ["esp:3V3", "relayFan1:COM", "red", []],
-    ["esp:3V3", "relayFan2:COM", "red", []],
-    ["esp:3V3", "relayLight1:COM", "red", []],
-    ["esp:3V3", "relayLight2:COM", "red", []],
-    ["esp:3V3", "relayLight3:COM", "red", []],
-    ["relayFan1:NO", "resFan1:1", "blue", []],
-    ["relayFan2:NO", "resFan2:1", "blue", []],
-    ["relayLight1:NO", "resLight1:1", "yellow", []],
-    ["relayLight2:NO", "resLight2:1", "yellow", []],
-    ["relayLight3:NO", "resLight3:1", "yellow", []],
-    ["resFan1:2", "fan1Load:A", "blue", []],
-    ["resFan2:2", "fan2Load:A", "blue", []],
-    ["resLight1:2", "light1Load:A", "yellow", []],
-    ["resLight2:2", "light2Load:A", "yellow", []],
-    ["resLight3:2", "light3Load:A", "yellow", []],
-    ["fan1Load:C", "esp:GND.1", "black", []],
-    ["fan2Load:C", "esp:GND.1", "black", []],
-    ["light1Load:C", "esp:GND.1", "black", []],
-    ["light2Load:C", "esp:GND.1", "black", []],
-    ["light3Load:C", "esp:GND.1", "black", []]
+    [ "uno:GND.1", "light1:C", "black", [ "v0" ] ],
+    [ "light1:C", "light2:C", "black", [ "h0" ] ],
+    [ "light2:C", "light3:C", "black", [ "h0" ] ],
+    [ "light3:C", "fan2:C", "black", [ "h0" ] ],
+    [ "fan2:C", "fan1:C", "black", [ "h0" ] ],
+    [ "uno:2", "r_f1:2", "blue", [ "v0" ] ],
+    [ "r_f1:1", "fan1:A", "blue", [ "v0" ] ],
+    [ "uno:3", "r_f2:2", "blue", [ "v0" ] ],
+    [ "r_f2:1", "fan2:A", "blue", [ "v0" ] ],
+    [ "uno:4", "r_l1:2", "yellow", [ "v0" ] ],
+    [ "r_l1:1", "light1:A", "yellow", [ "v0" ] ],
+    [ "uno:5", "r_l2:2", "yellow", [ "v0" ] ],
+    [ "r_l2:1", "light2:A", "yellow", [ "v0" ] ],
+    [ "uno:6", "r_l3:2", "yellow", [ "v0" ] ],
+    [ "r_l3:1", "light3:A", "yellow", [ "v0" ] ],
+    [ "uno:GND.2", "btn_f1:2.red", "black", [ "v0" ] ],
+    [ "btn_f1:2.red", "btn_f2:2.red", "black", [ "h0" ] ],
+    [ "btn_f2:2.red", "btn_l1:2.red", "black", [ "h0" ] ],
+    [ "btn_l1:2.red", "btn_l2:2.red", "black", [ "h0" ] ],
+    [ "btn_l2:2.red", "btn_l3:2.red", "black", [ "h0" ] ],
+    [ "uno:7", "btn_f1:1.white", "green", [ "v0" ] ],
+    [ "uno:8", "btn_f2:1.white", "green", [ "v0" ] ],
+    [ "uno:9", "btn_l1:1.white", "orange", [ "v0" ] ],
+    [ "uno:10", "btn_l2:1.white", "orange", [ "v0" ] ],
+    [ "uno:11", "btn_l3:1.white", "orange", [ "v0" ] ]
   ],
   "dependencies": {}
 }
-

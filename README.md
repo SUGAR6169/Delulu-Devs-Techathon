@@ -4,8 +4,7 @@
 
 PowerView gives an office one synchronized view of every light, fan, and energy anomaly. A live React web dashboard and a Discord Copilot bot both read from the same FastAPI backend, ensuring the numbers never disagree.
 
-![High-Level System Diagram](docs/architecture/system-architecture.svg)
-*Placeholder: High-Level System Diagram*
+![High-Level System Diagram](docs/architecture/system-architecture.png)
 
 ![Wokwi Hardware Schematic](hardware/wokwi/diagram.png)
 *Placeholder: Wokwi Hardware Schematic*
