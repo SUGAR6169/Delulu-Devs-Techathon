@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useWebSocket } from './hooks/useWebSocket';
-import DeviceCard from './components/DeviceCard';
 import PowerMeter from './components/PowerMeter';
+import PowerTrend from './components/PowerTrend';
 import AlertsPanel from './components/AlertsPanel';
 import AlertsModal from './components/AlertsModal';
 import RoomLayout from './components/RoomLayout';
@@ -14,6 +14,7 @@ const WS_URL = 'ws://localhost:8000/ws/devices';
 function App() {
   const [devices, setDevices] = useState([]);
   const [powerSummary, setPowerSummary] = useState(null);
+  const [powerHistory, setPowerHistory] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -27,6 +28,15 @@ function App() {
     ]).then(([devs, power, alts]) => {
       setDevices(devs);
       setPowerSummary(power);
+      if (power && power.total_watts !== undefined) {
+        // Generate 15 points of flatline fake history leading up to now
+        const now = Date.now();
+        const initialHistory = Array.from({ length: 15 }, (_, i) => ({
+          timestamp: new Date(now - (14 - i) * 10000).toISOString(),
+          watts: power.total_watts
+        }));
+        setPowerHistory(initialHistory);
+      }
       setAlerts(alts);
     }).catch(err => console.error("Failed to fetch initial state", err));
   }, []);
@@ -40,7 +50,15 @@ function App() {
       const updatedDevice = latest.data;
       setDevices(prev => prev.map(d => d.id === updatedDevice.id ? { ...d, ...updatedDevice } : d));
       
-      fetch(`${API_BASE}/power/summary`).then(res => res.json()).then(setPowerSummary);
+      fetch(`${API_BASE}/power/summary`).then(res => res.json()).then(data => {
+        setPowerSummary(data);
+        if (data && data.total_watts !== undefined) {
+          setPowerHistory(prev => [...prev, {
+            timestamp: new Date().toISOString(),
+            watts: data.total_watts
+          }].slice(-50));
+        }
+      });
       
     } else if (latest.event === 'alert_triggered') {
       setAlerts(prev => {
@@ -60,42 +78,45 @@ function App() {
       <div className="max-w-7xl mx-auto p-8 space-y-8">
         <header className="mb-10 text-center lg:text-left flex flex-col lg:flex-row justify-between items-center gap-4">
           <div>
-            <h1 className="text-4xl font-black text-white tracking-tight flex items-center gap-3">
-              Delulu Office Monitor
-            </h1>
-            <p className="text-[12px] uppercase tracking-widest text-indigo-300/70 mt-2 font-medium">Real-time telemetry & electrical analytics</p>
+            <div className="flex items-center gap-3 justify-center lg:justify-start">
+              {/* The logo is served from the public directory with no border or fallback text */}
+              <img id="brand-logo" src="/logo.png" className="w-14 h-14 object-contain shrink-0" alt="PowerView" />
+              
+              <div className="flex flex-col justify-center text-left">
+                <h1 className="text-4xl font-black text-white tracking-tight leading-none">
+                  PowerView
+                </h1>
+                <p className="text-[10px] uppercase tracking-widest text-indigo-300/70 mt-1.5 font-medium leading-none">
+                  OFFICE ENERGY MANAGEMENT
+                </p>
+              </div>
+            </div>
           </div>
           <HeaderClock />
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 h-[450px]">
+          {/* Main Column */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
             <PowerMeter summary={powerSummary} />
+            <RoomLayout devices={devices} alerts={alerts} />
           </div>
-          <div className="h-[450px]">
-            <AlertsPanel alerts={alerts} onOpenModal={() => setIsModalOpen(true)} />
+
+          {/* Sidebar Column */}
+          <div className="lg:col-span-1 flex flex-col h-full gap-4">
+            <div className="flex-none">
+              <SimulationControl />
+            </div>
+            <div className="flex-1 overflow-y-auto min-h-[200px]">
+              <AlertsPanel alerts={alerts} onOpenModal={() => setIsModalOpen(true)} />
+            </div>
+            <div className="flex-none">
+              <PowerTrend history={powerHistory} />
+            </div>
           </div>
         </div>
 
         {isModalOpen && <AlertsModal alerts={alerts} onClose={() => setIsModalOpen(false)} />}
-
-        <SimulationControl />
-
-        <RoomLayout devices={devices} alerts={alerts} />
-
-        <div className="glass-panel">
-          <h2 className="text-[10px] uppercase tracking-widest text-indigo-300/70 mb-6 border-b border-white/5 pb-4">Device Status Subsystems</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {rooms.map(room => (
-              <div key={room} className="space-y-4">
-                <h3 className="text-[10px] uppercase tracking-widest text-white/50 bg-[#13151f] border border-white/5 px-3 py-1.5 rounded-lg inline-block shadow-inner">{room}</h3>
-                {devices.filter(d => d.room === room).map(device => (
-                  <DeviceCard key={device.id} device={device} />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -47,17 +47,14 @@ export default function RoomLayout({ devices, alerts = [] }) {
   };
 
   const getBorder = (roomName) => {
-    if (!roomName) return "border-slate-700/50";
-    return hasAlert(roomName) 
-      ? "border-danger/60 shadow-[0_0_15px_rgba(239,68,68,0.25)]" 
-      : "border-slate-700/50 transition-colors duration-500";
+    return "border-slate-700/50 transition-colors duration-500";
   };
 
   return (
     <div className="glass-panel overflow-x-auto">
       <h2 className="text-[10px] uppercase tracking-widest text-indigo-300/70 mb-6 text-center">Live Office Floorplan</h2>
       
-      <div className="min-w-[800px] w-full max-w-5xl mx-auto flex flex-col gap-0 border-8 border-[#1a1c26] rounded-xl p-3 bg-[#0d0f17]">
+      <div className="w-full max-w-5xl mx-auto flex flex-col gap-0 border-8 border-[#1a1c26] rounded-xl p-3 bg-[#0d0f17]">
         
         {/* Top Row: 3 Rooms */}
         <div className="grid grid-cols-3 gap-3 h-80">

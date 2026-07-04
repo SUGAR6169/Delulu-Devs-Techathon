@@ -18,51 +18,51 @@ export default function SimulationControl() {
   };
 
   return (
-    <div className="glass-panel flex flex-col gap-4">
-      <div className="flex items-center justify-between border-b border-white/5 pb-4">
-        <h2 className="text-xl font-semibold text-white tracking-wide">Simulation Control</h2>
-        <span className="px-2 py-1 bg-indigo-500/20 text-indigo-300 text-xs font-mono rounded-full border border-indigo-500/30">
+    <div className="glass-panel flex flex-col gap-3">
+      <div className="flex items-center justify-between border-b border-white/5 pb-3">
+        <h2 className="text-base font-semibold text-white tracking-wide">Simulation Control</h2>
+        <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-300 text-[10px] font-mono rounded-full border border-indigo-500/30">
           DEMO MODE
         </span>
       </div>
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2">
         <button
           onClick={() => triggerScenario('normal_day')}
-          className="flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-left group"
+          className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
         >
-          <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
-            <Play size={18} />
+          <div className="p-1.5 bg-emerald-500/10 rounded-md text-emerald-400 group-hover:scale-110 transition-transform">
+            <Play size={14} />
           </div>
           <div>
-            <div className="text-white font-medium">Normal Operation</div>
-            <div className="text-xs text-slate-400">Reset clock to 9:00 AM start</div>
+            <div className="text-white text-xs font-medium leading-tight">Normal Operation</div>
+            <div className="text-[10px] text-slate-400 leading-tight mt-0.5">Reset to 9:00 AM</div>
           </div>
         </button>
 
         <button
           onClick={() => triggerScenario('late_night_usage')}
-          className="flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-left group"
+          className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
         >
-          <div className="p-2 bg-purple-500/10 rounded-lg text-purple-400 group-hover:scale-110 transition-transform">
-            <Moon size={18} />
+          <div className="p-1.5 bg-purple-500/10 rounded-md text-purple-400 group-hover:scale-110 transition-transform">
+            <Moon size={14} />
           </div>
           <div>
-            <div className="text-white font-medium">After-Hours Leak Anomaly</div>
-            <div className="text-xs text-slate-400">Instantly jump time to 7:00 PM</div>
+            <div className="text-white text-xs font-medium leading-tight">After-Hours Leak</div>
+            <div className="text-[10px] text-slate-400 leading-tight mt-0.5">Jump to 7:00 PM</div>
           </div>
         </button>
 
         <button
           onClick={() => triggerScenario('prolonged_operation')}
-          className="flex items-center gap-3 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-left group"
+          className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
         >
-          <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 group-hover:scale-110 transition-transform">
-            <Clock size={18} />
+          <div className="p-1.5 bg-amber-500/10 rounded-md text-amber-400 group-hover:scale-110 transition-transform">
+            <Clock size={14} />
           </div>
           <div>
-            <div className="text-white font-medium">Force 2-Hour Overtime Spike</div>
-            <div className="text-xs text-slate-400">Fast-forward clock by exactly 2 hours</div>
+            <div className="text-white text-xs font-medium leading-tight">2-Hour Overtime</div>
+            <div className="text-[10px] text-slate-400 leading-tight mt-0.5">Fast-forward clock</div>
           </div>
         </button>
       </div>

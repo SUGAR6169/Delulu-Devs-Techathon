@@ -12,9 +12,9 @@ from app.services.ws_manager import manager
 
 DISCORD_BOT_WEBHOOK_URL = "http://localhost:8001/webhook/alert"
 
-# Initialize global simulated time: July 4, 2026 09:00 AM (Asia/Dhaka timezone offset +06:00)
+# Initialize global simulated time: July 20, 2026 09:00 AM (Asia/Dhaka timezone offset +06:00)
 DHAKA_TZ = timezone(timedelta(hours=6))
-SIMULATED_TIME = datetime(2026, 7, 4, 9, 0, 0, tzinfo=DHAKA_TZ)
+SIMULATED_TIME = datetime(2026, 7, 20, 9, 0, 0, tzinfo=DHAKA_TZ)
 
 async def simulate_events():
     """Background task to integrate energy over time and check alerts using 10x simulated time."""
@@ -90,7 +90,7 @@ async def apply_scenario(db: Session, scenario_id: str):
     updated_devices = []
 
     if scenario_id == "normal_day":
-        SIMULATED_TIME = datetime(2026, 7, 4, 9, 0, 0, tzinfo=DHAKA_TZ)
+        SIMULATED_TIME = datetime(2026, 7, 20, 9, 0, 0, tzinfo=DHAKA_TZ)
         # Random daytime setup
         for d in devices:
             d.status = random.choice([True, False])
@@ -99,7 +99,7 @@ async def apply_scenario(db: Session, scenario_id: str):
             updated_devices.append(d)
             
     elif scenario_id == "late_night_usage":
-        SIMULATED_TIME = datetime(2026, 7, 4, 19, 0, 0, tzinfo=DHAKA_TZ)
+        SIMULATED_TIME = datetime(2026, 7, 20, 19, 0, 0, tzinfo=DHAKA_TZ)
         # Turn off everything except Work Room 2
         for d in devices:
             if d.room == "Work Room 2":
