@@ -158,8 +158,6 @@ The [`hardware/wokwi`](hardware/wokwi) directory contains:
 
 Built by **Team Delulu Devs**. 
 
-## Team
-
 **Team CLI** — Techathon Nationals & Rover Summit Hackathon '26'
 
 | Name | GitHub | Email |
