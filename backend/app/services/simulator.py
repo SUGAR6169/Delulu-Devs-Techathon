@@ -1,7 +1,7 @@
 import asyncio
 import random
 import uuid
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 import httpx
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal
@@ -12,10 +12,27 @@ from app.services.ws_manager import manager
 
 DISCORD_BOT_WEBHOOK_URL = "http://localhost:8001/webhook/alert"
 
+# Initialize global simulated time: July 4, 2026 09:00 AM (Asia/Dhaka timezone offset +06:00)
+DHAKA_TZ = timezone(timedelta(hours=6))
+SIMULATED_TIME = datetime(2026, 7, 4, 9, 0, 0, tzinfo=DHAKA_TZ)
+
 async def simulate_events():
-    """Background task to integrate energy over time and check alerts."""
+    """Background task to integrate energy over time and check alerts using 10x simulated time."""
+    global SIMULATED_TIME
+    
     while True:
-        await asyncio.sleep(5)
+        await asyncio.sleep(1) # Run every 1 real-time second
+        
+        # Advance simulated time by 10 seconds (10x speed)
+        SIMULATED_TIME += timedelta(seconds=10)
+        
+        # Broadcast time tick
+        await manager.broadcast({
+            "event": "time_tick",
+            "data": {
+                "simulated_time": SIMULATED_TIME.isoformat()
+            }
+        })
         
         db: Session = SessionLocal()
         try:
@@ -23,31 +40,39 @@ async def simulate_events():
             if not devices:
                 continue
 
-            # Update Daily Consumption for 5 seconds at current total watts
+            # Update Daily Consumption for 10 simulated seconds
             total_watts = sum(d.power_draw_watts for d in devices)
-            hours_elapsed = 5.0 / 3600.0
+            hours_elapsed = 10.0 / 3600.0
             kwh_added = (total_watts * hours_elapsed) / 1000.0
 
-            today = date.today()
-            consumption = db.query(DailyConsumption).filter(DailyConsumption.date_id == today).first()
+            # Use simulated date for the consumption record
+            simulated_date = SIMULATED_TIME.date()
+            consumption = db.query(DailyConsumption).filter(DailyConsumption.date_id == simulated_date).first()
             if not consumption:
-                consumption = DailyConsumption(date_id=today, total_kwh=0.0)
+                consumption = DailyConsumption(date_id=simulated_date, total_kwh=0.0)
                 db.add(consumption)
             
             consumption.total_kwh += kwh_added
             db.commit()
 
-            # Anomaly Detection
-            now = datetime.utcnow()
+            # Anomaly Detection based on simulated time
             for d in devices:
                 if d.status:
                     # Condition 1: After hours (5 PM to 9 AM)
-                    if now.hour >= 17 or now.hour < 9:
+                    if SIMULATED_TIME.hour >= 17 or SIMULATED_TIME.hour < 9:
                         alert_msg = f"{d.room} has devices ON after hours! ({d.name})"
                         await trigger_alert(db, "after_hours", alert_msg)
                         
-                    # Condition 2: Left on for too long (> 2 hours). For demo: > 30s
-                    elif (now - d.last_changed).total_seconds() > 30:
+                    # Condition 2: Left on for too long (> 2 hours) -> 7200 seconds
+                    # Because last_changed was saved without tzinfo by default in db, we must ensure timezone awareness
+                    # Actually, if db returns naive datetime, let's treat it as UTC or convert appropriately.
+                    # Wait, our database is SQLite, which returns naive datetimes. 
+                    # Let's ensure last_changed is timezone aware.
+                    last_changed = d.last_changed
+                    if last_changed.tzinfo is None:
+                        last_changed = last_changed.replace(tzinfo=DHAKA_TZ)
+                    
+                    if (SIMULATED_TIME - last_changed).total_seconds() > 7200:
                         alert_msg = f"{d.room} - {d.name} has been ON for too long!"
                         await trigger_alert(db, "excessive_usage", alert_msg)
 
@@ -58,21 +83,23 @@ async def simulate_events():
 
 
 async def apply_scenario(db: Session, scenario_id: str):
-    """Applies specific state configurations based on scenario ID."""
+    """Applies specific state configurations based on scenario ID and manipulates time."""
+    global SIMULATED_TIME
     devices = db.query(Device).all()
-    now = datetime.utcnow()
     
     updated_devices = []
 
     if scenario_id == "normal_day":
+        SIMULATED_TIME = datetime(2026, 7, 4, 9, 0, 0, tzinfo=DHAKA_TZ)
         # Random daytime setup
         for d in devices:
             d.status = random.choice([True, False])
             d.power_draw_watts = (60.0 if d.type == 'fan' else 15.0) if d.status else 0.0
-            d.last_changed = now
+            d.last_changed = SIMULATED_TIME
             updated_devices.append(d)
             
     elif scenario_id == "late_night_usage":
+        SIMULATED_TIME = datetime(2026, 7, 4, 19, 0, 0, tzinfo=DHAKA_TZ)
         # Turn off everything except Work Room 2
         for d in devices:
             if d.room == "Work Room 2":
@@ -81,21 +108,22 @@ async def apply_scenario(db: Session, scenario_id: str):
             else:
                 d.status = False
                 d.power_draw_watts = 0.0
-            d.last_changed = now
+            d.last_changed = SIMULATED_TIME
             updated_devices.append(d)
             
     elif scenario_id == "prolonged_operation":
-        # Turn on Work Room 1 devices and fast-forward timestamp
+        SIMULATED_TIME += timedelta(hours=2)
+        # Turn on Work Room 1 devices 
         for d in devices:
             if d.room == "Work Room 1":
                 d.status = True
                 d.power_draw_watts = 60.0 if d.type == 'fan' else 15.0
-                # Fast forward to trigger 2-hour anomaly (demo: > 30s)
-                d.last_changed = now - timedelta(seconds=45) 
+                # Set last changed to 2 hours ago to trigger alert
+                d.last_changed = SIMULATED_TIME - timedelta(hours=2)
             else:
                 d.status = False
                 d.power_draw_watts = 0.0
-                d.last_changed = now
+                d.last_changed = SIMULATED_TIME
             updated_devices.append(d)
             
     elif scenario_id == "shutdown":
@@ -103,7 +131,7 @@ async def apply_scenario(db: Session, scenario_id: str):
         for d in devices:
             d.status = False
             d.power_draw_watts = 0.0
-            d.last_changed = now
+            d.last_changed = SIMULATED_TIME
             updated_devices.append(d)
         
         # Clear alerts
@@ -127,8 +155,14 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
     existing_alert = db.query(Alert).filter(Alert.message == message).first()
     
     if existing_alert:
-        time_since_last = (datetime.utcnow() - existing_alert.timestamp).total_seconds()
-        existing_alert.timestamp = datetime.utcnow()
+        # Avoid spamming if updated recently (e.g. last 5 simulated seconds? Let's use real time for spam prevention or simulated)
+        # Let's use SIMULATED_TIME for timestamps
+        last_ts = existing_alert.timestamp
+        if last_ts.tzinfo is None:
+            last_ts = last_ts.replace(tzinfo=DHAKA_TZ)
+            
+        time_since_last = (SIMULATED_TIME - last_ts).total_seconds()
+        existing_alert.timestamp = SIMULATED_TIME
         existing_alert.count += 1
         db.commit()
         
@@ -140,7 +174,7 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
             "count": existing_alert.count
         }
         
-        if time_since_last > 5:
+        if time_since_last > 60: # 1 simulated minute
             await manager.broadcast({
                 "event": "alert_updated",
                 "data": alert_data
@@ -151,7 +185,7 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
         id=str(uuid.uuid4()),
         type=alert_type,
         message=message,
-        timestamp=datetime.utcnow(),
+        timestamp=SIMULATED_TIME,
         count=1
     )
     db.add(new_alert)

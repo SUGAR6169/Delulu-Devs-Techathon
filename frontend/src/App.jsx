@@ -5,6 +5,8 @@ import PowerMeter from './components/PowerMeter';
 import AlertsPanel from './components/AlertsPanel';
 import AlertsModal from './components/AlertsModal';
 import RoomLayout from './components/RoomLayout';
+import SimulationControl from './components/SimulationControl';
+import HeaderClock from './components/HeaderClock';
 
 const API_BASE = 'http://localhost:8000/api';
 const WS_URL = 'ws://localhost:8000/ws/devices';
@@ -63,10 +65,7 @@ function App() {
             </h1>
             <p className="text-[12px] uppercase tracking-widest text-indigo-300/70 mt-2 font-medium">Real-time telemetry & electrical analytics</p>
           </div>
-          <div className="bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-full flex items-center gap-3 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34d399]"></div>
-            <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">System Online</span>
-          </div>
+          <HeaderClock />
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -79,6 +78,8 @@ function App() {
         </div>
 
         {isModalOpen && <AlertsModal alerts={alerts} onClose={() => setIsModalOpen(false)} />}
+
+        <SimulationControl />
 
         <RoomLayout devices={devices} alerts={alerts} />
 

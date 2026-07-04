@@ -1,17 +1,46 @@
 import { Fan, Lightbulb } from 'lucide-react';
 
-function DeviceIcon({ device }) {
+function DeviceIcon({ device, onToggle }) {
   if (!device) return <div className="w-9 h-9"></div>;
   const isOn = device.status;
+  
   return (
-    <div className={`p-2 rounded-full flex items-center justify-center transition-all duration-500 z-20 ${isOn ? (device.type === 'light' ? 'bg-warning/20 text-warning animate-pulse-glow scale-110' : 'bg-primary/20 text-primary shadow-[0_0_15px_rgba(56,189,248,0.4)] scale-110') : 'bg-white/5 text-white/20'}`} title={device.name}>
-      {device.type === 'fan' ? <Fan size={20} className={isOn ? 'animate-spin-slow' : ''} /> : <Lightbulb size={20} />}
-    </div>
+    <button
+      type="button"
+      onClick={() => onToggle(device.id)}
+      className={`p-2 rounded-full flex items-center justify-center z-20 cursor-pointer transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${
+        isOn 
+          ? (device.type === 'light' 
+              ? 'bg-warning/20 text-warning animate-pulse-glow scale-110' 
+              : 'bg-primary/20 text-primary shadow-[0_0_15px_rgba(56,189,248,0.4)] scale-110') 
+          : 'bg-white/5 text-white/20'
+      }`}
+      title={`Click to toggle ${device.name}`}
+    >
+      {device.type === 'fan' ? (
+        <Fan size={20} className={isOn ? 'animate-spin-slow' : ''} />
+      ) : (
+        <Lightbulb size={20} />
+      )}
+    </button>
   );
 }
 
 export default function RoomLayout({ devices, alerts = [] }) {
   const getDevice = (id) => devices.find(d => d.id === id);
+
+  const toggleDevice = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/devices/${id}/toggle`, {
+        method: 'POST',
+      });
+      if (!response.ok) {
+        console.error('Failed to toggle device');
+      }
+    } catch (error) {
+      console.error('Error toggling device:', error);
+    }
+  };
 
   const hasAlert = (roomName) => {
     return alerts.some(alert => alert.message.includes(roomName));
@@ -38,10 +67,10 @@ export default function RoomLayout({ devices, alerts = [] }) {
             <h3 className="absolute top-3 left-3 bg-indigo-500/10 text-indigo-300 text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-indigo-500/20 backdrop-blur-sm z-0">DRAWING ROOM</h3>
             
             {/* Top row of devices */}
-            <div className="flex justify-between items-center z-10 px-4 mt-6">
-               <DeviceIcon device={getDevice('drawing_light_1')} />
-               <DeviceIcon device={getDevice('drawing_fan_1')} />
-               <DeviceIcon device={getDevice('drawing_light_2')} />
+            <div className="flex justify-between items-center z-30 relative px-4 mt-6">
+               <DeviceIcon device={getDevice('drawing_light_1')} onToggle={toggleDevice} />
+               <div className="translate-y-8"><DeviceIcon device={getDevice('drawing_fan_1')} onToggle={toggleDevice} /></div>
+               <DeviceIcon device={getDevice('drawing_light_2')} onToggle={toggleDevice} />
             </div>
             
             {/* Furniture: Sofa on left, table center */}
@@ -54,9 +83,9 @@ export default function RoomLayout({ devices, alerts = [] }) {
             </div>
 
             {/* Bottom row of devices */}
-            <div className="flex flex-col justify-center items-center z-10 relative pb-2">
-               <div className="-mt-6 mb-1"><DeviceIcon device={getDevice('drawing_fan_2')} /></div>
-               <div><DeviceIcon device={getDevice('drawing_light_3')} /></div>
+            <div className="flex flex-col justify-center items-center z-30 relative pb-4">
+               <div className="-mt-8 mb-4"><DeviceIcon device={getDevice('drawing_fan_2')} onToggle={toggleDevice} /></div>
+               <div><DeviceIcon device={getDevice('drawing_light_3')} onToggle={toggleDevice} /></div>
             </div>
           </div>
 
@@ -65,10 +94,10 @@ export default function RoomLayout({ devices, alerts = [] }) {
             <h3 className="absolute top-3 left-3 bg-indigo-500/10 text-indigo-300 text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-indigo-500/20 backdrop-blur-sm z-0">WORK ROOM 1</h3>
             
             {/* Top row of devices */}
-            <div className="flex justify-between items-center z-10 px-6 mt-6">
-               <DeviceIcon device={getDevice('work1_light_1')} />
-               <DeviceIcon device={getDevice('work1_fan_1')} />
-               <DeviceIcon device={getDevice('work1_light_2')} />
+            <div className="flex justify-between items-center z-30 relative px-6 mt-6">
+               <DeviceIcon device={getDevice('work1_light_1')} onToggle={toggleDevice} />
+               <div className="translate-y-8"><DeviceIcon device={getDevice('work1_fan_1')} onToggle={toggleDevice} /></div>
+               <DeviceIcon device={getDevice('work1_light_2')} onToggle={toggleDevice} />
             </div>
 
             {/* Desks */}
@@ -92,9 +121,9 @@ export default function RoomLayout({ devices, alerts = [] }) {
             </div>
 
             {/* Bottom row of devices */}
-            <div className="flex flex-col justify-center items-center z-10 relative pb-2">
-               <div className="-mt-6 mb-1"><DeviceIcon device={getDevice('work1_fan_2')} /></div>
-               <div><DeviceIcon device={getDevice('work1_light_3')} /></div>
+            <div className="flex flex-col justify-center items-center z-30 relative pb-4">
+               <div className="-mt-14 mb-8"><DeviceIcon device={getDevice('work1_fan_2')} onToggle={toggleDevice} /></div>
+               <div><DeviceIcon device={getDevice('work1_light_3')} onToggle={toggleDevice} /></div>
             </div>
           </div>
 
@@ -103,10 +132,10 @@ export default function RoomLayout({ devices, alerts = [] }) {
             <h3 className="absolute top-3 left-3 bg-indigo-500/10 text-indigo-300 text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest border border-indigo-500/20 backdrop-blur-sm z-0">WORK ROOM 2</h3>
             
             {/* Top row of devices */}
-            <div className="flex justify-between items-center z-10 px-6 mt-6">
-               <DeviceIcon device={getDevice('work2_light_1')} />
-               <DeviceIcon device={getDevice('work2_fan_1')} />
-               <DeviceIcon device={getDevice('work2_light_2')} />
+            <div className="flex justify-between items-center z-30 relative px-6 mt-6">
+               <DeviceIcon device={getDevice('work2_light_1')} onToggle={toggleDevice} />
+               <div className="translate-y-8"><DeviceIcon device={getDevice('work2_fan_1')} onToggle={toggleDevice} /></div>
+               <DeviceIcon device={getDevice('work2_light_2')} onToggle={toggleDevice} />
             </div>
 
             {/* Desks */}
@@ -130,9 +159,9 @@ export default function RoomLayout({ devices, alerts = [] }) {
             </div>
 
             {/* Bottom row of devices */}
-            <div className="flex flex-col justify-center items-center z-10 relative pb-2">
-               <div className="-mt-6 mb-1"><DeviceIcon device={getDevice('work2_fan_2')} /></div>
-               <div><DeviceIcon device={getDevice('work2_light_3')} /></div>
+            <div className="flex flex-col justify-center items-center z-30 relative pb-4">
+               <div className="-mt-14 mb-8"><DeviceIcon device={getDevice('work2_fan_2')} onToggle={toggleDevice} /></div>
+               <div><DeviceIcon device={getDevice('work2_light_3')} onToggle={toggleDevice} /></div>
             </div>
           </div>
 
