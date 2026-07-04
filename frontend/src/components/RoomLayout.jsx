@@ -33,6 +33,7 @@ export default function RoomLayout({ devices, alerts = [] }) {
     try {
       const response = await fetch(`http://localhost:8000/api/devices/${id}/toggle`, {
         method: 'POST',
+        headers: { 'x-api-key': 'hackathon_demo_key' }
       });
       if (!response.ok) {
         console.error('Failed to toggle device');

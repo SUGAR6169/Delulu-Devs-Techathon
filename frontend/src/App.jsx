@@ -76,6 +76,8 @@ function App() {
           return [latest.data, ...prev].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 20);
         }
       });
+    } else if (latest.event === 'alert_resolved') {
+      setAlerts(prev => prev.filter(a => a.id !== latest.data.id));
     }
   }, [wsMessages]);
 

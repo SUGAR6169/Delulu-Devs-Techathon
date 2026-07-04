@@ -11,6 +11,7 @@ export default function SimulationControl() {
     try {
       const response = await fetch(`${API_BASE_URL}/simulation/scenarios/${scenarioId}`, {
         method: 'POST',
+        headers: { 'x-api-key': 'hackathon_demo_key' }
       });
       if (!response.ok) {
         console.error('Failed to trigger scenario:', await response.text());

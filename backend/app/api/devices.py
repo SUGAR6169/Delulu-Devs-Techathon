@@ -15,8 +15,10 @@ def get_devices(db: Session = Depends(get_db)):
 def get_devices_by_room(room_name: str, db: Session = Depends(get_db)):
     return db.query(DeviceModel).filter(DeviceModel.room == room_name).all()
 
+from app.core.security import verify_api_key
+
 @router.post("/{device_id}/toggle", response_model=Device)
-async def toggle_device(device_id: str, db: Session = Depends(get_db)):
+async def toggle_device(device_id: str, db: Session = Depends(get_db), api_key: str = Depends(verify_api_key)):
     from fastapi import HTTPException
     
     device = db.query(DeviceModel).filter(DeviceModel.id == device_id).first()

@@ -61,6 +61,8 @@ async def simulate_events():
             for d in devices:
                 rooms.setdefault(d.room, []).append(d)
                 
+            active_alert_messages = set()
+                
             for room, room_devices in rooms.items():
                 all_devices_on_for_2_hours = True
                 has_devices = len(room_devices) > 0
@@ -70,6 +72,7 @@ async def simulate_events():
                         # Condition 1: After hours (5 PM to 9 AM)
                         if SIMULATED_TIME.hour >= 17 or SIMULATED_TIME.hour < 9:
                             alert_msg = f"{d.room} has devices ON after hours! ({d.name})"
+                            active_alert_messages.add(alert_msg)
                             await trigger_alert(db, "after_hours", alert_msg)
                             
                         # For Condition 2: check if this device has been on for 2+ hours
@@ -85,7 +88,20 @@ async def simulate_events():
                 # Condition 2: ALL devices in the room have been ON for 2+ hours
                 if has_devices and all_devices_on_for_2_hours:
                     alert_msg = f"The fans and lights in {room} have been ON for way too long!"
+                    active_alert_messages.add(alert_msg)
                     await trigger_alert(db, "excessive_usage", alert_msg)
+
+            # Auto-resolve alerts that are no longer active
+            all_alerts = db.query(Alert).all()
+            for alert in all_alerts:
+                if alert.message not in active_alert_messages:
+                    alert_id = alert.id
+                    db.delete(alert)
+                    db.commit()
+                    await manager.broadcast({
+                        "event": "alert_resolved",
+                        "data": {"id": alert_id}
+                    })
 
         except Exception as e:
             print(f"Simulator error: {e}")
