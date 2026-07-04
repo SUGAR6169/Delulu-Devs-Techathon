@@ -41,9 +41,15 @@ export default function PowerMeter({ summary }) {
           {Object.entries(summary.rooms_watts || {}).map(([room, watts]) => {
             const roomPrefix = room.replace(' Room', '');
             return (
-              <div key={room} className="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center text-center">
+              <div key={room} className="bg-white/5 p-4 rounded-xl border border-white/5 flex flex-col items-center text-center w-full">
                 <span className="text-slate-400 text-[10px] uppercase tracking-wider mb-1">{roomPrefix}</span>
                 <span className="font-mono text-white text-xl font-bold">{watts.toFixed(1)} W</span>
+                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-3">
+                  <div 
+                    className={`h-full transition-all duration-500 ease-out ${room === 'Drawing Room' ? 'bg-slate-500' : room === 'Work Room 1' ? 'bg-yellow-500' : 'bg-teal-400'}`}
+                    style={{ width: `${Math.min((watts / 225) * 100, 100)}%` }}
+                  ></div>
+                </div>
               </div>
             );
           })}

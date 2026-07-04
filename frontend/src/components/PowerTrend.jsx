@@ -18,9 +18,12 @@ export default function PowerTrend({ history = [] }) {
           <Activity size={14} className="text-warning" /> Live Power Trend
         </h2>
         {currentWatts !== null && (
-          <span className="font-mono text-sm font-semibold text-yellow-500/80">
-            {currentWatts.toFixed(1)} W
-          </span>
+          <div className="flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse shadow-[0_0_8px_rgba(234,179,8,0.8)]"></span>
+            <span className="font-mono text-xs font-semibold text-yellow-500/90">
+              {currentWatts.toFixed(1)} W
+            </span>
+          </div>
         )}
       </div>
       
