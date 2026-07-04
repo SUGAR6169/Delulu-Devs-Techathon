@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Play, Clock, Flame } from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
 export default function SimulationControl() {
+  const [activeMode, setActiveMode] = useState('normal_day');
+
   const triggerScenario = async (scenarioId) => {
+    setActiveMode(scenarioId);
     try {
       const response = await fetch(`${API_BASE_URL}/simulation/scenarios/${scenarioId}`, {
         method: 'POST',
@@ -29,7 +32,7 @@ export default function SimulationControl() {
       <div className="flex flex-col gap-2">
         <button
           onClick={() => triggerScenario('normal_day')}
-          className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left group ${activeMode === 'normal_day' ? 'bg-cyan-500/10 border border-cyan-500/50' : 'bg-[#181A25] border border-white/5 hover:bg-white/5'}`}
         >
           <div className="p-1.5 bg-emerald-500/10 rounded-md text-emerald-400 group-hover:scale-110 transition-transform">
             <Play size={14} />
@@ -42,7 +45,7 @@ export default function SimulationControl() {
 
         <button
           onClick={() => triggerScenario('late_night_usage')}
-          className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left group ${activeMode === 'late_night_usage' ? 'bg-cyan-500/10 border border-cyan-500/50' : 'bg-[#181A25] border border-white/5 hover:bg-white/5'}`}
         >
           <div className="p-1.5 bg-amber-500/10 rounded-md text-amber-500 group-hover:scale-110 transition-transform">
             <Clock size={14} />
@@ -55,7 +58,7 @@ export default function SimulationControl() {
 
         <button
           onClick={() => triggerScenario('prolonged_operation')}
-          className="flex items-center gap-3 px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all text-left group"
+          className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-all text-left group ${activeMode === 'prolonged_operation' ? 'bg-cyan-500/10 border border-cyan-500/50' : 'bg-[#181A25] border border-white/5 hover:bg-white/5'}`}
         >
           <div className="p-1.5 bg-red-500/10 rounded-md text-red-500 group-hover:scale-110 transition-transform">
             <Flame size={14} />
