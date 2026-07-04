@@ -28,7 +28,7 @@ function App() {
                 Use <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold">EnergyBot</span> on discord
               </span>
               <span className="text-xs text-slate-300 leading-none">
-                Use <span className="bg-white/5 px-1 rounded text-indigo-300 font-mono">!status</span>, <span className="bg-white/5 px-1 rounded text-indigo-300 font-mono">!usage</span>, <span className="bg-white/5 px-1 rounded text-indigo-300 font-mono">!room &lt;name&gt;</span>
+                Use <span className="bg-white/5 px-1 rounded text-indigo-300 font-mono">/status</span>, <span className="bg-white/5 px-1 rounded text-indigo-300 font-mono">/usage</span>, <span className="bg-white/5 px-1 rounded text-indigo-300 font-mono">/room &lt;name&gt;</span>
               </span>
             </div>
           </div>
