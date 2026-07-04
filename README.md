@@ -8,9 +8,6 @@ PowerView gives an office one synchronized view of every light, fan, and energy 
 
 [Wokwi Hardware Schematic](https://wokwi.com/projects/468613327019371521)
 
-[![3-Minute YouTube Video Demo](https://img.youtube.com/vi/YOUR_VIDEO_ID/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID)
-*Placeholder: Click to watch the 3-Minute YouTube Video Demo*
-
 ## Problem understanding
 
 Employees sometimes leave lights and fans running after work, wasting energy and inflating operational costs. The office needs:
