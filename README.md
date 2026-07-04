@@ -164,5 +164,6 @@ Built by **Team Delulu Devs**.
 |------|--------|-------|
 | Muntakim Fuad Mahi | @sugar6169 | muntakimfm@gmail.com |
 | Anha Khan | @Anha-Khan | anhakhan0111@gmail.com |
-| Abrar Faiyaz Arian | @abrar-arian | member3@example.com |
+| Abrar Faiyaz Arian | @abrar-arian | abrarfaiyazarian@gmail.com
+ |
 | Ahad Kaiser Tamim | @amoxicillin23 | ahadkaisertamim23.akt@gmail.com |
