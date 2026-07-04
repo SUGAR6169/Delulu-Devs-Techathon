@@ -16,6 +16,9 @@ This directory contains a virtual hardware simulation representing our office no
 
 ## How to use
 
+You can view the complete interactive schematic here: [Wokwi Hardware Schematic](https://wokwi.com/projects/468613327019371521)
+
+Alternatively, to run it manually:
 1. Go to [Wokwi](https://wokwi.com/) and start a new ESP32 project.
 2. Paste the contents of `diagram.json` and `sketch.ino` into the respective editors.
 3. Hit play to start the simulation.
