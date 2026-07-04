@@ -4,7 +4,7 @@ import HeaderClock from './components/HeaderClock';
 import Dashboard from './pages/Dashboard';
 import LiveMonitor from './pages/LiveMonitor';
 import Floorplan from './pages/Floorplan';
-import Devices from './pages/Devices';
+
 import AlertsPage from './pages/AlertsPage';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
@@ -38,7 +38,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/live-monitor" element={<LiveMonitor />} />
           <Route path="/floorplan" element={<Floorplan />} />
-          <Route path="/devices" element={<Devices />} />
+
           <Route path="/alerts" element={<AlertsPage />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />

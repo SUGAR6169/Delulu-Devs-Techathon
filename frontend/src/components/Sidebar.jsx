@@ -5,7 +5,7 @@ const links = [
     { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
     { to: '/live-monitor', label: 'Live Monitor', icon: Activity },
     { to: '/floorplan', label: 'Floorplan', icon: Map },
-    { to: '/devices', label: 'Devices', icon: Cpu },
+    
     { to: '/alerts', label: 'Alerts', icon: Bell },
     { to: '/reports', label: 'Reports', icon: BarChart3 },
     { to: '/settings', label: 'Settings', icon: SettingsIcon },
