@@ -111,7 +111,7 @@ python main.py
 
 | Method | Endpoint | Purpose |
 |---|---|---|
-| `GET` | `/api/devices` | All 18 current device states |
+| `GET` | `/api/devices` | All 15 current device states |
 | `GET` | `/api/power/summary` | Office and room power/energy totals |
 | `GET` | `/api/alerts` | Current active alerts |
 | `POST` | `/api/devices/:deviceId/toggle` | Simulate one physical state change |
