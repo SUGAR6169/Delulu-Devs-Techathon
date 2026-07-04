@@ -217,6 +217,7 @@ async def trigger_alert(db: Session, alert_type: str, message: str):
 
     async with httpx.AsyncClient() as client:
         try:
-            await client.post(DISCORD_BOT_WEBHOOK_URL, json=alert_data, timeout=2.0)
+            headers = {"Authorization": "Bearer secret_webhook_token_123"}
+            await client.post(DISCORD_BOT_WEBHOOK_URL, json=alert_data, headers=headers, timeout=2.0)
         except Exception:
             pass

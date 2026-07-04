@@ -47,6 +47,10 @@ class OfficeBot(commands.Bot):
         await super().close()
 
     async def handle_alert_webhook(self, request):
+        auth_header = request.headers.get("Authorization")
+        if auth_header != "Bearer secret_webhook_token_123":
+            return web.Response(status=401, text="Unauthorized")
+            
         try:
             data = await request.json()
             message = data.get("message", "Unknown anomaly detected!")
@@ -111,7 +115,6 @@ async def _handle_room(room_name: str) -> discord.Embed:
     if not db_room:
         error_data = {
             "error": "Invalid room specified",
-            "provided": room_name,
             "valid_choices": ["Drawing Room", "Work Room 1", "Work Room 2"]
         }
         human_text = generate_humanized_response(

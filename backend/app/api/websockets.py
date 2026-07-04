@@ -5,7 +5,9 @@ router = APIRouter(prefix="/ws", tags=["websockets"])
 
 @router.websocket("/devices")
 async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+    accepted = await manager.connect(websocket)
+    if not accepted:
+        return
     try:
         while True:
             # Keep connection alive and detect disconnects
