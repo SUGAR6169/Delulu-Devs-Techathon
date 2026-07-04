@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import PowerTrend from '../components/PowerTrend';
 import PowerMeter from '../components/PowerMeter';
 import { useWebSocket } from '../hooks/useWebSocket';
 
@@ -9,6 +8,7 @@ const WS_URL = 'ws://localhost:8000/ws/devices';
 export default function LiveMonitor() {
     const [powerSummary, setPowerSummary] = useState(null);
     const [powerHistory, setPowerHistory] = useState([]);
+    const [simulatedTime, setSimulatedTime] = useState(null);
     const wsMessages = useWebSocket(WS_URL);
 
     useEffect(() => {
@@ -27,6 +27,9 @@ export default function LiveMonitor() {
     useEffect(() => {
         if (wsMessages.length === 0) return;
         const latest = wsMessages[wsMessages.length - 1];
+        if (latest.event === 'time_tick' && latest.data?.simulated_time) {
+            setSimulatedTime(new Date(latest.data.simulated_time));
+        }
         if (latest.event === 'state_update') {
             fetch(`${API_BASE}/power/summary`).then(res => res.json()).then(data => {
                 setPowerSummary(data);
@@ -40,34 +43,33 @@ export default function LiveMonitor() {
         }
     }, [wsMessages]);
 
+    let greeting = 'Hello Boss!';
+    if (simulatedTime) {
+        const hour = parseInt(new Intl.DateTimeFormat('en-US', {
+            hour: 'numeric',
+            hour12: false,
+            timeZone: 'Asia/Dhaka'
+        }).format(simulatedTime));
+
+        if (hour >= 5 && hour < 12) {
+            greeting = 'Good Morning Boss!';
+        } else if (hour >= 12 && hour < 17) {
+            greeting = 'Good Afternoon Boss!';
+        } else if (hour >= 17 && hour < 21) {
+            greeting = 'Good Evening Boss!';
+        } else {
+            greeting = 'Good Night Boss!';
+        }
+    }
+
     return (
         <div className="space-y-6">
             <h2 className="text-2xl font-bold text-white">Live Monitor</h2>
-            <PowerMeter summary={powerSummary} />
-            <div className="glass-panel h-96 p-4">
-                <PowerTrend history={powerHistory} />
-            </div>
-            {powerSummary && (
-                <div className="glass-panel p-6">
-                    <h3 className="text-sm uppercase tracking-widest text-indigo-300/70 mb-4">Room Breakdown (Live)</h3>
-                    <div className="space-y-4">
-                        {Object.entries(powerSummary.rooms_watts || {}).map(([room, watts]) => (
-                            <div key={room}>
-                                <div className="flex justify-between text-sm mb-1">
-                                    <span className="text-slate-300">{room}</span>
-                                    <span className="font-mono text-white">{watts.toFixed(1)} W</span>
-                                </div>
-                                <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                                    <div
-                                        className="h-full bg-indigo-500"
-                                        style={{ width: `${Math.min(100, (watts / (powerSummary.total_watts || 1)) * 100)}%` }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+            <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 mb-8">
+                {greeting}
+            </h1>
+            <PowerMeter summary={powerSummary} layout="list" />
+
         </div>
     );
 }
